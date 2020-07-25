@@ -44,6 +44,7 @@ public class App {
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+		
 	}
 
 	
@@ -65,7 +66,43 @@ public class App {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String txt = txtField.getText();
-				dbc.handleDB(Integer.parseInt(txt));
+				
+		        Cocktail[] cocktails = dbc.getAllCocktails();
+		        System.out.println("All Cocktails: ");
+		        for(Cocktail c: cocktails){
+					System.out.println("cocktail_id = " + c.cocktail_id);
+					System.out.println("name = " + c.name);
+					//System.out.println("instructions = " + c.instructions);
+					System.out.println("");
+		    	}
+		        
+		        System.out.println("Usage Statistics: ");
+		        UsageStatistic[] stat = dbc.getUsageStatistics();
+		        
+		        for(UsageStatistic s: stat){
+					System.out.println("description = " + s.description);
+					System.out.println("count = " + s.count);
+					System.out.println("");
+		        }
+		        
+				System.out.println("Cocktail: ");
+				Cocktail c = dbc.getCocktailInfo(Integer.parseInt(txt));
+                System.out.println("cocktail_id = " + c.cocktail_id);
+                System.out.println("name = " + c.name);
+                System.out.println("instructions = " + c.instructions);
+                System.out.println("");
+                
+                Ingredient[] ingredients = dbc.getCocktailIngredients(Integer.parseInt(txt));
+                System.out.println("Ingredients: ");
+                for(Ingredient i: ingredients){
+    				System.out.println("ingredient_id = " + i.ingredient_id);
+    				System.out.println("cocktail_id = " + i.cocktail_id);
+    				System.out.println("quantity = " + i.quantity);
+    				System.out.println("unit = " + i.unit);
+    				System.out.println("description = " + i.description);
+    				System.out.println("");
+            	}
+                
 				if(!txt.isEmpty()){
 					OUT.println(txt);
 					labelLastText.setText(txt);
