@@ -1,15 +1,16 @@
 package Main;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -17,13 +18,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class App {
 	
-	static PrintStream OUT = System.out;
 	static DB dbc = DB.getInstance();
 	public static void main(String[] args) {
         
         dbc.initDBConnection();
         
-		setupOutStream();
 		setupLookAndFeel();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -50,15 +49,30 @@ public class App {
 	
 	private static void setupWindowContent(JFrame window) {
 		// --- 2ter Teil - Fenster Inhalt erstellen
+
 		JPanel content = new JPanel();
+		GridBagLayout layout = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		content.setLayout(layout);
+		
 		final JLabel lblEnterSmthng = new JLabel("Enter Something!");
 		final JTextField txtField = new JTextField(30);
 		JButton btnOk = new JButton("Ok");
-		final JLabel labelLastText = new JLabel();
-		content.add(lblEnterSmthng);
-		content.add(txtField);
-		content.add(btnOk);
-		content.add(labelLastText);
+		
+		final JLabel lblCocktailName = new JLabel("Cocktail Name:");
+		final JTextField fieldCocktailName = new JTextField(30);
+		final JLabel lblInstructions = new JLabel("Instructions");
+		final JTextArea txtaInstructions = new JTextArea();
+		JButton btnCreateCocktail = new JButton("Anlegen");
+		
+		content.add(lblEnterSmthng,c);
+		content.add(txtField,c);
+		content.add(btnOk,c);
+		content.add(lblCocktailName,c);
+		content.add(fieldCocktailName,c);
+		content.add(lblInstructions,c);
+		content.add(txtaInstructions,c);
+		content.add(btnCreateCocktail,c);
 		window.setContentPane(content);
 		
 		// --- 3ter Teil -Programm Logik
@@ -102,37 +116,44 @@ public class App {
     				System.out.println("description = " + i.description);
     				System.out.println("");
             	}
-                
-				if(!txt.isEmpty()){
-					OUT.println(txt);
-					labelLastText.setText(txt);
-					txtField.setText("");
-				}
 			}
 		};
-//		ActionListener submitAction = (e) -> {
-//			String txt = txtField.getText();
-//			if(!txt.isEmpty()){
-//				OUT.println(txt);
-//				labelLastText.setText(txt);
-//				txtField.setText("");
-//			}
-//		}; // lambda equivalent for above
+		ActionListener createCocktailAction = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Cocktail c = new Cocktail();
+				c.name = fieldCocktailName.getText();
+				c.instructions = txtaInstructions.getText();
+				/*
+				 * Assemble all Ingredients in Array
+				 */
+				Ingredient[] i = null;
+				
+				// Only for ze lulz, replace with actual data
+				i = new Ingredient[3];
+				i[0] = new Ingredient();
+				i[0].description = "Ice";
+				//i[0].quantity = 1;
+				//i[0].unit = "";
+				i[1] = new Ingredient();
+				i[1].description = "Vodka (two Shots)";
+				i[1].quantity = 8;
+				i[1].unit = "cl";
+				i[2] = new Ingredient();
+				i[2].description = "Orange Juice";
+				i[2].quantity = 10;
+				i[2].unit = "cl";
+				// The fun ends here
+				
+				createCocktailWithIngredients(c,i);
+				System.out.println("id: " + c.cocktail_id);
+				System.out.println("name: " + c.name);
+				System.out.println("instructions: " + c.instructions);
+			}
+		};
+		btnCreateCocktail.addActionListener(createCocktailAction);
 		btnOk.addActionListener(submitAction);
 		txtField.addActionListener(submitAction);
-	}
-	
-	
-	private static void setupOutStream() {
-		File logfile = new File("logFile.txt");
-		try {
-			if (!logfile.exists()) {
-				logfile.createNewFile();
-			}
-			OUT = new PrintStream(logfile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	private static void setupLookAndFeel() {
@@ -147,5 +168,16 @@ public class App {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	static void createCocktailWithIngredients(Cocktail cocktail, Ingredient[] ingredients){
+		Cocktail c = cocktail;
+		Ingredient i[] = ingredients;
+		dbc.createCocktail(c);
+        for(Ingredient elem: i){
+        	elem.cocktail_id = c.cocktail_id;
+        	dbc.createIngredient(elem);
+    	}
+        
 	}
 }

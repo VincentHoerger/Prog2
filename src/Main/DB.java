@@ -1,7 +1,6 @@
 package Main;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -202,6 +201,126 @@ public class DB {
         }
 		return resStat;
     }
+    
+    boolean createCocktail(Cocktail cocktail) {
+		try {
+			String statement = 	"INSERT INTO tab_cocktails (name, instructions)" +
+								"VALUES (?,?)";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, cocktail.name);
+			ps.setObject(2, cocktail.instructions);
+
+			ps.execute();
+    		Statement stmtc = connection.createStatement();
+    		ResultSet rsc = stmtc.executeQuery("SELECT last_insert_rowid() as id");
+    		while (rsc.next()) {
+    			cocktail.cocktail_id = rsc.getInt("id");
+            }
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
+    boolean createIngredient(Ingredient ingredient) {
+		try {
+			String statement = 	"INSERT INTO tab_ingredients (cocktail_id, quantity, unit, description)" +
+								"VALUES (?,?,?,?)";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, ingredient.cocktail_id);
+			ps.setObject(2, ingredient.quantity);
+			ps.setObject(3, ingredient.unit);
+			ps.setObject(4, ingredient.description);
+
+			ps.execute();
+    		Statement stmtc = connection.createStatement();
+    		ResultSet rsc = stmtc.executeQuery("SELECT last_insert_rowid() as id");
+    		while (rsc.next()) {
+    			ingredient.ingredient_id = rsc.getInt("id");
+            }
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
+   
+    boolean updateCocktail(Cocktail cocktail) {
+		try {
+			String statement = 	"UPDATE tab_cocktails " +
+								"SET name = ?, instructions = ?" +
+								"WHERE cocktail_id = ?";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, cocktail.name);
+			ps.setObject(2, cocktail.instructions);
+			ps.setObject(3, cocktail.cocktail_id);
+
+			ps.execute();
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
+    boolean updateIngredient(Ingredient ingredient) {
+		try {
+			String statement = 	"UPDATE tab_ingredients " +
+								"SET quantity = ?, unit = ?, description = ?" +
+								"WHERE cocktail_id = ?";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, ingredient.quantity);
+			ps.setObject(2, ingredient.unit);
+			ps.setObject(3, ingredient.description);
+			ps.setObject(4, ingredient.cocktail_id);
+			
+			ps.execute();
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
+    boolean deleteCocktail(int cocktail_id) {
+		try {
+			// It is enough to delete the cocktail, because of foreign key reference ON DELETE CASCADE in db
+			String statement = 	"DELETE FROM tab_cocktails" +
+								"WHERE cocktail_id = ?";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, cocktail_id);
+			
+			ps.execute();
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
+    boolean deleteIngredient(int ingredient_id) {
+		try {
+			String statement = 	"DELETE FROM tab_ingredients" +
+					"WHERE ingredient_id = ?";
+			PreparedStatement ps = connection.prepareStatement(statement);
+			ps.setObject(1, ingredient_id);
+			
+			ps.execute();
+		} catch (SQLException e) {
+			System.err.println("Couldn't handle DB-Query");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+    }
+    
     /*Statement stmt = connection.createStatement();
     
     stmt.execute("INSERT INTO books (author, title, publication, pages, price) VALUES ('Paulchen Paule', 'Paul der Penner', '2001-05-06', '1234', '5.67')");
