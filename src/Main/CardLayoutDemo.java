@@ -12,18 +12,24 @@ import javax.swing.*;
 
 
 
+
 public class CardLayoutDemo implements ItemListener{
+	
+	static DB dbc = DB.getInstance();
+	
+	
     JPanel cards; //a panel that uses CardLayout
+    
     final static String BUTTONPANEL = "Rezepte Anschauen/Suchen";
     final static String BUTTONPANEL1 = "Neues Rezept Anlegen";
     final static String BUTTONPANEL2 = "Rezepte Ändern/Löschen";
-	private static final String TEXTPANEL = null;
     
     
     public void addComponentToPane(Container pane) {
+    	
         //Put the JComboBox in a JPanel to get a nicer look.
         JPanel comboBoxPane = new JPanel(); //use FlowLayout
-        String comboBoxItems[] = { BUTTONPANEL, BUTTONPANEL1, BUTTONPANEL2, TEXTPANEL};
+        String comboBoxItems[] = { BUTTONPANEL, BUTTONPANEL1, BUTTONPANEL2};
         JComboBox cb = new JComboBox(comboBoxItems);
         cb.setEditable(false);
         cb.addItemListener(this);
@@ -31,21 +37,61 @@ public class CardLayoutDemo implements ItemListener{
         
         //Create the "cards".
         JPanel card1 = new JPanel();
-        card1.add(new JTextField(30));
-        card1.add(new JButton("Suchen"));
+        final JTextField fieldSearch = new JTextField(30);
+        card1.add(fieldSearch);
+        JButton suchen = new JButton("Suchen");
+        card1.add(suchen);
         
-        
+        suchen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	String txt = fieldSearch.getText();
+                System.out.println("Hier wird gesucht: " + txt);
+                Cocktail c  = dbc.getCocktailInfo(Integer.parseInt(txt));
+                System.out.println(c.name);
+                System.out.println(c.instructions);
+            }
+        });
         
         JPanel card2 = new JPanel();
+        //final JTextField fieldSearch = new JTextField(30);
+        //final JTextField fieldSearch = new JTextField(30);
+        //final JTextField fieldSearch = new JTextField(30);
         card2.add(new JTextField("Name", 20));
         card2.add(new JTextField("Beschreibung", 20));
         card2.add(new JTextField("Zutaten", 20));
-        card2.add(new JButton("Erstellen"));
+        JButton erstellen = new JButton("erstellen");
+        card2.add(erstellen);
+        
+        erstellen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Hier wird erstellt");
+            }
+        });
         
         
         JPanel card3 = new JPanel();
-        card3.add(new JButton("Ändern"));
-        card3.add(new JButton("Löschen"));
+        JButton edit = new JButton("Ändern");
+        card3.add(edit);
+        
+        edit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Hier wird geändert");
+            }
+        });
+        
+        
+        JButton delete = new JButton("Löschen");
+        card3.add(delete);
+        
+        delete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Hier wird gelöscht");
+            }
+        });
         
         
         //Create the panel that contains the "cards".
@@ -56,11 +102,14 @@ public class CardLayoutDemo implements ItemListener{
         
         pane.add(comboBoxPane, BorderLayout.PAGE_START);
         pane.add(cards, BorderLayout.CENTER);
+        
+        
     }
     
     public void itemStateChanged(ItemEvent evt) {
         CardLayout cl = (CardLayout)(cards.getLayout());
         cl.show(cards, (String)evt.getItem());
+        
     }
     
     /**
@@ -69,8 +118,11 @@ public class CardLayoutDemo implements ItemListener{
      * event dispatch thread.
      */
    private static void createAndShowGUI() {
+	   
         //Create and set up the window.
         JFrame frame = new JFrame("COCKTAIL-REZEPTE");
+        
+        
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         //Create and set up the content pane.
@@ -83,6 +135,8 @@ public class CardLayoutDemo implements ItemListener{
     }
     
     public static void main(String[] args) {
+
+        dbc.initDBConnection();
         /* Use an appropriate Look and Feel */
         try {
             //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -104,6 +158,7 @@ public class CardLayoutDemo implements ItemListener{
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
+                
             }
         });
     }
