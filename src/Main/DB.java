@@ -2,14 +2,14 @@ package Main;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.PreparedStatement;		//Importieren der wichtigsten Databases um SQLL in Java laufen zu lassen
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DB {
     
-    private static final DB DB = new DB();
+    private static final DB DB = new DB();			//Treiber damit SQL in Java funktionieren kann (Aus Internet kopiert)
     private static Connection connection;
     private static final String DB_PATH = System.getProperty("user.dir") + "/" + "db.sqlite";
 
@@ -67,9 +67,9 @@ public class DB {
             System.err.println("Couldn't close DB-Connection");
             e.printStackTrace();
 		}
-    }
+    } 				//Ende vom Treiber
     
-    Cocktail[] getAllCocktails() {
+    Cocktail[] getAllCocktails() { 			//Funktion damit alle angelegten Cocktails aus DB ausgewählt und angezeigt werden
     	Cocktail[] resCocktails = null;
     	try {
     		// Number of Result sets
@@ -80,13 +80,13 @@ public class DB {
     			rowCount = rsc.getInt("c");;
             }
     		rsc.close();
-    		resCocktails = new Cocktail[rowCount];
+    		resCocktails = new Cocktail[rowCount]; 		//Cocktail ID wird automatisch um 1 erhöht wenn Rezept neu angelegt wird
     		
     		Statement stmt = connection.createStatement();
     		ResultSet rs = stmt.executeQuery("SELECT * FROM tab_cocktails;");
 
             int row = 0;
-            while (rs.next()) {
+            while (rs.next()) {									//Bei anlegen de neuen Rezept werden die 3 Parameter ID, Name und Instructions ebenfalls angelegt
             	resCocktails[row] = new Cocktail();
             	resCocktails[row].cocktail_id = rs.getInt("cocktail_id");
             	resCocktails[row].name = rs.getString("name");
@@ -95,7 +95,7 @@ public class DB {
             }
             
             rs.close();
-        } catch (SQLException e) {
+        } catch (SQLException e) {			//Bei Fehlermeldung wird Exception ausgegeben
             System.err.println("Couldn't handle DB-Query");
             e.printStackTrace();
         }
@@ -105,7 +105,7 @@ public class DB {
     Cocktail getCocktailInfo(int cocktail_id) {
     	Cocktail resCocktail = new Cocktail();
     	try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tab_cocktails WHERE cocktail_id = ?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tab_cocktails WHERE cocktail_id = ?;"); 	//Suchfunktion um Cocktails anhand ihrer unikaten ID zu finden
             ps.setObject(1, cocktail_id);
             
             ResultSet rs = ps.executeQuery();
@@ -166,7 +166,7 @@ public class DB {
 		return resIngredients;
     }
     
-    UsageStatistic[] getUsageStatistics() {
+    UsageStatistic[] getUsageStatistics() {			//Anzahl der jeweils benutzten Zutaten in der gesamten Datenbank --> Funktion für das Diagramm
     	UsageStatistic[] resStat = null;
     	String query = 	"SELECT description, count(description) as c " +
 						"FROM tab_ingredients " +
@@ -202,7 +202,7 @@ public class DB {
 		return resStat;
     }
     
-    boolean createCocktail(Cocktail cocktail) {
+    boolean createCocktail(Cocktail cocktail) {			//Anlegen neuer Cocktails in der Datenbank
 		try {
 			String statement = 	"INSERT INTO tab_cocktails (name, instructions)" +
 								"VALUES (?,?)";
@@ -224,7 +224,7 @@ public class DB {
 		return true;
     }
     
-    boolean createIngredient(Ingredient ingredient) {
+    boolean createIngredient(Ingredient ingredient) { 		//Anlegen neuer Ingredients in der Datenbank
 		try {
 			String statement = 	"INSERT INTO tab_ingredients (cocktail_id, quantity, unit, description)" +
 								"VALUES (?,?,?,?)";
@@ -249,7 +249,7 @@ public class DB {
     }
     
    
-    boolean updateCocktail(Cocktail cocktail) {
+    boolean updateCocktail(Cocktail cocktail) {		//Ändern der Cocktails in der Datenbank
 		try {
 			String statement = 	"UPDATE tab_cocktails " +
 								"SET name = ?, instructions = ?" +
@@ -268,7 +268,7 @@ public class DB {
 		return true;
     }
     
-    boolean updateIngredient(Ingredient ingredient) {
+    boolean updateIngredient(Ingredient ingredient) {		//Ändern der Ingredients in der Datenbank
 		try {
 			String statement = 	"UPDATE tab_ingredients " +
 								"SET quantity = ?, unit = ?, description = ?" +
@@ -288,16 +288,16 @@ public class DB {
 		return true;
     }
     
-    boolean deleteCocktail(int cocktail_id) {
+    boolean deleteCocktail(int cocktail_id) { 	//Funktion um Cocktails zu löschen
 		try {
-			// It is enough to delete the cocktail, because of foreign key reference ON DELETE CASCADE in db
+			// Hier reicht es den Coktail einfach zu löschen, da in SQL eine foreign key reference ON DELETE CASCADE angelegt ist
 			String statement = 	"DELETE FROM tab_cocktails" +
 								"WHERE cocktail_id = ?";
 			PreparedStatement ps = connection.prepareStatement(statement);
 			ps.setObject(1, cocktail_id);
 			
 			ps.execute();
-		} catch (SQLException e) {
+		} catch (SQLException e) {		//Bei Fehlermeldung (z.B. wenn Cocktail fehlt) wird die Exception ausgeführt
 			System.err.println("Couldn't handle DB-Query");
 			e.printStackTrace();
 			return false;
@@ -305,7 +305,7 @@ public class DB {
 		return true;
     }
     
-    boolean deleteIngredient(int ingredient_id) {
+    boolean deleteIngredient(int ingredient_id) { //Funktion um Ingredients zu löschen --> funktioniert genau gleich wie den Cocktail löschen 
 		try {
 			String statement = 	"DELETE FROM tab_ingredients" +
 					"WHERE ingredient_id = ?";

@@ -26,12 +26,19 @@ public class App {
 		setupLookAndFeel();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
+			public void run() {		//Auskommentiertes Textfenster
 				startGUI();
 			}
 		});
+			
 //		SwingUtilities.invokeLater( ()->startGUI() ); // lambda equivalent for above
+		
+		
+		
+		
 	}
+	
+	
 
 	private static void startGUI() {
 		// --- 1ter Teil - Fenster erstellen und starten
